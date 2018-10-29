@@ -9,10 +9,11 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 option(test "Build tests." ON)
 
+SET(SOURCE_FILES src/random src/simulation.cpp src/network.cpp )
 include_directories("/usr/local/include" ${CMAKE_SOURCE_DIR}/include)
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
-add_executable(NetSim src/main.cpp)
+add_executable(NetSim  src/main.cpp ${SOURCE_FILES})
 
 if (test)
   enable_testing()
@@ -22,14 +23,8 @@ if (test)
     SET(GTEST_BOTH_LIBRARIES libgtest.a libgtest_main.a)
   endif(NOT GTEST_FOUND)
   include_directories(${GTEST_INCLUDE_DIRS})
-  add_executable(testNetSim src/test_main.cpp)
+  add_executable(testNetSim src/test_main.cpp ${SOURCE_FILES})
   target_link_libraries(testNetSim ${GTEST_BOTH_LIBRARIES} pthread)
   add_test(Network_simulation testNetSim)
 endif(test)
 
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Doxyfile
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                    COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif(DOXYGEN_FOUND)
