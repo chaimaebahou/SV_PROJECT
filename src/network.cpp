@@ -18,29 +18,43 @@ void Network::resize(const size_t& n)
 
 bool Network::add_link(const size_t& a, const size_t& b)
 {
-    if(values.size() < a-1 or values.size() < b-1 or a==b  ) return false ;
-    
-    links.insert(std::make_pair(a,b));
-    links.insert(std::make_pair(b,a));
-    
-    if((links.find(a)->second) == b and  (links.find(b)->second) == a ) return true ;
-    else{ return false ;}
-    
-    
-    
+    if(links.find(a)->first == b or links.find(b)->second == a or (values.size() < a-1 or values.size() < b-1 or a==b  )) 
+    {
+		return false;
+	}else
+	{
+		links.insert(std::make_pair(a,b));
+		links.insert(std::make_pair(b,a));
+		if((links.find(a)->second) == b or (links.find(b)->second) == a ) return true ;
+		else{ return false ;}
+    }
 }
 
 size_t Network::random_connect(const double& mean_deg)
 {
     links.clear();
     RandomNumbers RNG ;
-    size_t i(0) ;
-    for(size_t node (0) ; node < 2*values.size() ; ++node)
+    size_t nbr(0) ;
+    
+    std::vector <int> nodes (size());
+	RNG.uniform_int(nodes,0,size()-1);
+
+    for(size_t node (0) ; node < size() ; ++node)
     {
-        add_link(node,RNG.poisson(mean_deg));
-        ++i ;
-    }
-    return i ;
+		int n(0);
+		int deg(RNG.poisson(mean_deg));
+		while(n < deg)
+		{
+			if(degree(nodes[node]) < size())
+			{
+				add_link(node,nodes[node]);
+				++nbr;
+				++n;
+			}
+		}
+	}
+	
+		return nbr ;	
 }
 
 size_t Network::set_values(const std::vector<double>& new_values)
@@ -64,7 +78,8 @@ size_t Network::size() const
 size_t Network::degree(const size_t &n) const
 {
     size_t i(0);
-        if(links.find(n)->first == n or links.find(n)->second == n )
+        if(links.find(n)->first == n or links.find(n)->second == n 
+        )
         {
             ++i;
         }
